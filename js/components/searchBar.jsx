@@ -4,14 +4,14 @@ import React from 'react';
  	render() {
  		return 	<div>
  					<form>
- 						<input 	type='text' placeholder="szukaj kota" value= {this.props.filterText}
+ 						<label><input type='text' value= {this.props.filterText}
  								onChange={this.props.onTextChange}
- 						/>
- 						<p>
+ 						/></label><br />
+ 						<label>
  							 <input type="checkbox" onChange={this.props.onCheckboxChange}
  							 		checked={this.props.likesKids} value="1"/> 
  							 Only show kitties that likes kids
- 						</p>
+ 						</label>
  					</form>
  				</div>
  	}
