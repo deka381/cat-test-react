@@ -9464,7 +9464,8 @@ var App = function (_React$Component) {
         _this.state = {
             filterText: "",
             border: "1px solid black",
-            likesKids: false
+            likesKids: false,
+            color: "green"
         };
         return _this;
     }
@@ -9472,13 +9473,27 @@ var App = function (_React$Component) {
     _createClass(App, [{
         key: 'render',
         value: function render() {
+            var _this2 = this;
+
+            var kitties = this.props.kitties.filter(function (cat) {
+                if (_this2.state.likesKids && !cat.likesKids) {
+                    return false;
+                }
+
+                if (_this2.state.filterText.length > 0 && cat.name.indexOf(_this2.state.filterText) === -1) {
+                    return false;
+                }
+
+                return true;
+            });
+
             return _react2.default.createElement(
                 'section',
                 null,
                 _react2.default.createElement(_searchBar.SearchBar, { filterText: this.state.filterText, onTextChange: this.handleTextChange,
                     onCheckboxChange: this.handleCheckChange, likesKids: this.state.likesKids }),
                 ',',
-                _react2.default.createElement(_catTable.CatTable, { kitties: this.props.kitties })
+                _react2.default.createElement(_catTable.CatTable, { kitties: this.props.kitties, color: this.state.color })
             );
         }
     }]);
@@ -9526,30 +9541,23 @@ var CatRow = exports.CatRow = function (_React$Component) {
   _createClass(CatRow, [{
     key: 'render',
     value: function render() {
-      var name = this.props.kitty.likesKids ? this.props.kitty.name : _react2.default.createElement(
-        'span',
-        { style: { color: 'red' } },
-        ' ',
-        this.props.kitty.name,
-        ' '
-      );
-
       return _react2.default.createElement(
-        'tr',
+        'thead',
         null,
-        ' ',
         _react2.default.createElement(
-          'td',
+          'tr',
           null,
-          name
-        ),
-        ' ',
-        _react2.default.createElement(
-          'td',
-          null,
-          this.props.kitty.age
-        ),
-        ' '
+          _react2.default.createElement(
+            'td',
+            null,
+            'Name'
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            'Age'
+          )
+        )
       );
     }
   }]);
@@ -9597,43 +9605,57 @@ var CatTable = exports.CatTable = function (_React$Component) {
   }
 
   _createClass(CatTable, [{
+    key: 'GetType',
+    value: function GetType(category) {
+      var _this2 = this;
+
+      var type = this.props.kitties.filter(function (cat) {
+        return cat.category === category;
+      });
+
+      var rows = type.map(function (cat) {
+
+        var style = {
+          color: _this2.props.color
+        };
+        if (!cat.likesKids) {
+          style.color = "red";
+        }
+        return _react2.default.createElement(
+          'tr',
+          { key: cat.name, style: style },
+          _react2.default.createElement(
+            'td',
+            null,
+            cat.name
+          ),
+          _react2.default.createElement(
+            'td',
+            null,
+            cat.age
+          )
+        );
+      });
+
+      return rows;
+    }
+  }, {
     key: 'render',
     value: function render() {
-      var rows = [];
-      var lastCategory = null;
+      var resultMale = this.GetType('male');
+      var resultFemale = this.GetType('female');
 
-      this.props.kitties.forEach(function (kitty) {
-        if (kitty.category !== lastCategory) {
-          rows.push(_react2.default.createElement(_categoryRow.CategoryRow, { category: kitty.category, key: kitty.category }));
-        }
-        rows.push(_react2.default.createElement(_catRow.CatRow, { kitty: kitty, key: kitty.name }));
-        lastCategory = kitty.category;
-      });
       return _react2.default.createElement(
         'table',
         null,
-        _react2.default.createElement(
-          'thead',
-          null,
-          _react2.default.createElement(
-            'tr',
-            null,
-            _react2.default.createElement(
-              'th',
-              null,
-              'Name'
-            ),
-            _react2.default.createElement(
-              'th',
-              null,
-              'Age'
-            )
-          )
-        ),
+        _react2.default.createElement(_catRow.CatRow, null),
         _react2.default.createElement(
           'tbody',
           null,
-          rows
+          _react2.default.createElement(_categoryRow.CategoryRow, { category: 'male' }),
+          resultMale,
+          _react2.default.createElement(_categoryRow.CategoryRow, { category: 'female' }),
+          resultFemale
         )
       );
     }
@@ -9660,6 +9682,10 @@ var _react = __webpack_require__(17);
 
 var _react2 = _interopRequireDefault(_react);
 
+var _reactDom = __webpack_require__(53);
+
+var _reactDom2 = _interopRequireDefault(_reactDom);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -9678,15 +9704,15 @@ var CategoryRow = exports.CategoryRow = function (_React$Component) {
   }
 
   _createClass(CategoryRow, [{
-    key: "render",
+    key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        "tr",
+        'tr',
         null,
-        " ",
+        ' ',
         _react2.default.createElement(
-          "th",
-          { colSpan: "2" },
+          'th',
+          { colSpan: '2' },
           this.props.category
         )
       );
@@ -9740,12 +9766,15 @@ var SearchBar = exports.SearchBar = function (_React$Component) {
         _react2.default.createElement(
           'form',
           null,
-          _react2.default.createElement('input', { type: 'text', placeholder: 'szukaj kota' }),
+          _react2.default.createElement('input', { type: 'text', placeholder: 'szukaj kota', value: this.props.filterText,
+            onChange: this.props.onTextChange
+          }),
           _react2.default.createElement(
             'p',
             null,
-            _react2.default.createElement('input', { type: 'checkbox' }),
-            ' Only show kitties that likes kids'
+            _react2.default.createElement('input', { type: 'checkbox', onChange: this.props.onCheckboxChange,
+              checked: this.props.likesKids, value: '1' }),
+            'Only show kitties that likes kids'
           )
         )
       );

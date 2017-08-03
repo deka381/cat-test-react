@@ -4,29 +4,43 @@ import {CategoryRow} from './categoryRow.jsx';
  
  export class CatTable extends React.Component{
  
+ 	GetType(category){
+ 		const type = this.props.kitties.filter(cat=>{
+ 			return cat.category ===category;
+ 		});
+
+ 		const rows = type.map (cat =>{
+
+ 			const style={
+        		color:this.props.color,
+      		};
+      		if (!cat.likesKids) {
+      			style.color="red";
+      		}
+      		return(
+      				<tr key={cat.name} style={style}>
+      					<td>{cat.name}</td>
+      					<td>{cat.age}</td>
+      				</tr>
+
+      			)
+ 		});
+
+ 		return rows;
+ 	}
+
  	render() {
- 		var rows = [];
- 		 var lastCategory = null;
+ 		const resultMale = this.GetType('male');
+ 		const resultFemale = this.GetType('female');
 
- 		this.props.kitties.forEach(function(kitty) {
-           if (kitty.category !== lastCategory) { 
-               rows.push(<CategoryRow category= { kitty.category }  key= { kitty.category } />);
-      }
-      		rows.push(<CatRow kitty={kitty} key={kitty.name} />);
-      		lastCategory = kitty.category;
-
-    		});
- 			return	 <table>
- 						<thead>
- 						<tr> 
- 							<th>Name</th>
- 							<th>Age</th>
- 						</tr>
- 						</thead>
- 						<tbody>
- 							{rows}
- 						</tbody> 
- 					</table>
- 		}	
-
+ 		return	<table>
+ 					<CatRow/>
+ 				 	<tbody>
+ 						<CategoryRow category='male'/>
+ 						{resultMale}
+ 						<CategoryRow category='female'/>
+ 						{resultFemale}
+ 					</tbody>
+ 				</table>
+ 	}
 }
